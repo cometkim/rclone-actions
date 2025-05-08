@@ -1,0 +1,64 @@
+name: Configure a remote using S3 provider
+
+description: Set up S3 compatible provider. See available options in https://rclone.org/s3/
+
+inputs:
+  name:
+    description: 'Name of the remote'
+    required: true
+  provider:
+    description: 'S3 compatible API provider'
+    required: true
+  endpoint:
+    description: 'S3 compatible API endpoint'
+    required: true
+  access-key-id:
+    description: 'Access Key ID to access the bucket'
+    required: true
+  secret-access-key:
+    description: 'Secret Access Key to access the bucket'
+    required: true
+  region:
+    description: 'Region to connect to'
+    default: ""
+  acl:
+    description: 'Canned ACL used when creating buckets and/or storing objects in S3'
+    default: ""
+  server-side-encryption:
+    description: 'The server-side encryption algorithm used when storing this object in S3'
+    default: ""
+  ssm-kms-key-id:
+    description: 'If using KMS ID you must provide the ARN of Key.'
+    default: ""
+  storage-class:
+    description: 'The storage class to use when storing objects in S3'
+    default: ""
+
+outputs:
+  config-file:
+    description: 'The location of Rclone cofiguration file'
+    value: "${{ steps.config-file.outputs.path }}"
+
+runs:
+  using: 'composite'
+  steps:
+    - id: config-file
+      shell: bash
+      run: |
+        CONFIG="$(rclone config file | tail -n 1)"
+        echo "path=$CONFIG" >> "$GITHUB_OUTPUT"
+
+    - name: Configure ${{ inputs.name }}
+      shell: bash
+      run: |
+        rclone config create "${{ inputs.name }}" s3 --non-interactive \
+          --s3-provider="${{ inputs.provider }}" \
+          --s3-access-key-id="${{ inputs.access-key-id }}" \
+          --s3-secret-access-key="${{ inputs.secret-access-key }}" \
+          --s3-endpoint="${{ inputs.endpoint }}" \
+          --s3-region="${{ inputs.region }}" \
+          --s3-acl="${{ inputs.acl }}" \
+          --s3-server-side-encryption="${{ inputs.server-side-encryption }}" \
+          --s3-sse-kms-key-id="${{ inputs.sse-kms-key-id }}" \
+          --s3-storage-class="${{ inputs.storage-class }}" \
+          > /dev/null
