@@ -22,3 +22,6 @@ jobs:
           access-key-id: "AWS_ACCESS_KEY_ID"
           secret-access-key: "AWS_SECRET_ACCESS_KEY"
           acl: private
+
+      - name: Validate a remote
+        run: rclone config show s3
