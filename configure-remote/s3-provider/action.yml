@@ -44,25 +44,26 @@ runs:
     - id: config-file
       shell: bash
       run: |
+        rclone config create "${{ inputs.name }}" --non-interactive > /dev/null
         CONFIG="$(rclone config file | tail -n 1)"
         echo "path=$CONFIG" >> "$GITHUB_OUTPUT"
 
     - name: Configure ${{ inputs.name }}
       shell: bash
       run: |
-        cmd=(
-          rclone config create "${{ inputs.name }}" s3 --non-interactive
-          --s3-provider="${{ inputs.provider }}"
-          --s3-access-key-id="${{ inputs.access-key-id }}"
-          --s3-secret-access-key="${{ inputs.secret-access-key }}"
-        )
-
-        # Add optional arguments only if they are not empty
-        [[ -n "${{ inputs.endpoint }}" ]] && cmd+=(--s3-endpoint="${{ inputs.endpoint }}")
-        [[ -n "${{ inputs.region }}" ]] && cmd+=(--s3-region="${{ inputs.region }}")
-        [[ -n "${{ inputs.acl }}" ]] && cmd+=(--s3-acl="${{ inputs.acl }}")
-        [[ -n "${{ inputs.server-side-encryption }}" ]] && cmd+=(--s3-server-side-encryption="${{ inputs.server-side-encryption }}")
-        [[ -n "${{ inputs.sse-kms-key-id }}" ]] && cmd+=(--s3-sse-kms-key-id="${{ inputs.sse-kms-key-id }}")
-        [[ -n "${{ inputs.storage-class }}" ]] && cmd+=(--s3-storage-class="${{ inputs.storage-class }}")
-
-        "${cmd[@]}" > /dev/null
+        function option() {
+          local opt; opt="$1"
+          local val; val="$2"
+          if [[ -n "$val" ]]; then
+            rclone config update "${{ inputs.name }}" --non-interactive $opt=$val > /dev/null           
+          fi
+        }
+        option "provider"               "${{ inputs.provider }}"
+        option "access-key-id"          "${{ inputs.access-key-id }}"
+        option "secret-access-key"      "${{ inputs.secret-access-key }}"
+        option "endpoint"               "${{ inputs.endpoint }}"
+        option "region"                 "${{ inputs.region }}"
+        option "acl"                    "${{ inputs.acl }}"
+        option "server-side-encryption" "${{ inputs.server-side-encryption }}"
+        option "sse-kms-key-id"         "${{ inputs.sse-kms-key-id }}"
+        option "storage-class"          "${{ inputs.storage-class }}"
