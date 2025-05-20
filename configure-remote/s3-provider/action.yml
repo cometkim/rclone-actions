@@ -11,7 +11,6 @@ inputs:
     required: true
   endpoint:
     description: 'S3 compatible API endpoint'
-    required: true
   access-key-id:
     description: 'Access Key ID to access the bucket'
     required: true
@@ -56,10 +55,10 @@ runs:
           --s3-provider="${{ inputs.provider }}"
           --s3-access-key-id="${{ inputs.access-key-id }}"
           --s3-secret-access-key="${{ inputs.secret-access-key }}"
-          --s3-endpoint="${{ inputs.endpoint }}"
         )
 
         # Add optional arguments only if they are not empty
+        [[ -n "${{ inputs.endpoint }}" ]] && cmd+=(--s3-endpoint="${{ inputs.endpoint }}")
         [[ -n "${{ inputs.region }}" ]] && cmd+=(--s3-region="${{ inputs.region }}")
         [[ -n "${{ inputs.acl }}" ]] && cmd+=(--s3-acl="${{ inputs.acl }}")
         [[ -n "${{ inputs.server-side-encryption }}" ]] && cmd+=(--s3-server-side-encryption="${{ inputs.server-side-encryption }}")
