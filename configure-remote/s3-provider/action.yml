@@ -51,14 +51,19 @@ runs:
     - name: Configure ${{ inputs.name }}
       shell: bash
       run: |
-        rclone config create "${{ inputs.name }}" s3 --non-interactive \
-          --s3-provider="${{ inputs.provider }}" \
-          --s3-access-key-id="${{ inputs.access-key-id }}" \
-          --s3-secret-access-key="${{ inputs.secret-access-key }}" \
-          --s3-endpoint="${{ inputs.endpoint }}" \
-          --s3-region="${{ inputs.region }}" \
-          --s3-acl="${{ inputs.acl }}" \
-          --s3-server-side-encryption="${{ inputs.server-side-encryption }}" \
-          --s3-sse-kms-key-id="${{ inputs.sse-kms-key-id }}" \
-          --s3-storage-class="${{ inputs.storage-class }}" \
-          > /dev/null
+        cmd=(
+          rclone config create "${{ inputs.name }}" s3 --non-interactive
+          --s3-provider="${{ inputs.provider }}"
+          --s3-access-key-id="${{ inputs.access-key-id }}"
+          --s3-secret-access-key="${{ inputs.secret-access-key }}"
+          --s3-endpoint="${{ inputs.endpoint }}"
+        )
+
+        # Add optional arguments only if they are not empty
+        [[ -n "${{ inputs.region }}" ]] && cmd+=(--s3-region="${{ inputs.region }}")
+        [[ -n "${{ inputs.acl }}" ]] && cmd+=(--s3-acl="${{ inputs.acl }}")
+        [[ -n "${{ inputs.server-side-encryption }}" ]] && cmd+=(--s3-server-side-encryption="${{ inputs.server-side-encryption }}")
+        [[ -n "${{ inputs.sse-kms-key-id }}" ]] && cmd+=(--s3-sse-kms-key-id="${{ inputs.sse-kms-key-id }}")
+        [[ -n "${{ inputs.storage-class }}" ]] && cmd+=(--s3-storage-class="${{ inputs.storage-class }}")
+
+        "${cmd[@]}" > /dev/null
