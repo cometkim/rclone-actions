@@ -44,7 +44,7 @@ runs:
     - id: config-file
       shell: bash
       run: |
-        rclone config create "${{ inputs.name }}" --non-interactive > /dev/null
+        rclone config create "${{ inputs.name }}" s3 --non-interactive > /dev/null
         CONFIG="$(rclone config file | tail -n 1)"
         echo "path=$CONFIG" >> "$GITHUB_OUTPUT"
 
