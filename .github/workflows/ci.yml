@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rclone
+        uses: ./setup-rclone
+
+      - name: Configure a remote - S3 provider
+        uses: ./configure-remote/s3-provider
+        with:
+          name: s3
+          provider: AWS
+          access-key-id: "AWS_ACCESS_KEY_ID"
+          secret-access-key: "AWS_SECRET_ACCESS_KEY"
+          acl: private
