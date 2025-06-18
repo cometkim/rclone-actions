@@ -1,7 +1,6 @@
 import * as path from 'node:path';
 import * as semver from 'semver';
 import * as core from '@actions/core';
-import { exec } from '@actions/exec';
 import * as gh from '@actions/github';
 import * as tc from '@actions/tool-cache';
 
@@ -26,7 +25,7 @@ export async function installRclone(version: string, platform: string, arch: str
     core.info(`Found in cache @ ${cachePath}`);
   } else {
     const base = `rclone-v${version}-${platform}-${arch}`;
-    const zipUrl = isOnCloud()
+    const zipUrl = isOnCloud() && process.env.GITHUB_TOKEN
       ? `https://github.com/rclone/rclone/releases/download/v${version}/${base}.zip`
       : `https://downloads.rclone.org/v${version}/${base}.zip`;
     core.info(`Downloading rclone from ${zipUrl}`);
